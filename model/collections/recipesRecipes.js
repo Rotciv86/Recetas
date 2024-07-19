@@ -1,31 +1,100 @@
-const db = require('../../config/database')
+const db = require('../../config/database');
 
 module.exports = class RecipesRecipes {
-    constructor(name, description, preparation_time, difficulty){
-        this.name = name,
-        this.description = description,
-        this.preparation_time = preparation_time,
-        this.difficulty = difficulty
+    constructor(name, image_path, ingredients, steps) {
+        this.name = name;
+        this.image_path = image_path;
+        this.ingredients = ingredients; // Array of {name, amount}
+        this.steps = steps; // Array of {description, step_number}
     }
+
     static getAll() {
-        return db.execute('SELECT * FROM Recipes')
+        return db.execute('SELECT * FROM Recipes');
     }
-    create() {
-        return db.execute(`INSERT INTO Recipes (name, description, preparation_time, difficulty) VALUES ('${this.name}', '${this.description}', '${this.preparation_time}', '${this.difficulty}')`)
+
+    async create() {
+        const connection = await db.getConnection();
+        try {
+            await connection.beginTransaction();
+    
+            // Validar valores
+            if (this.name === undefined || this.image_path === undefined) {
+                throw new Error('Invalid recipe data');
+            }
+    
+            // Insert the recipe
+            const [result] = await connection.execute(
+                'INSERT INTO Recipes (name, image_path) VALUES (?, ?)',
+                [this.name || null, this.image_path || null]
+            );
+            const recipeId = result.insertId;
+    
+            // Insert the ingredients and their relationships
+            for (const ingredient of this.ingredients) {
+                if (!ingredient.name || ingredient.amount === undefined) {
+                    throw new Error('Invalid ingredient data');
+                }
+    
+                let [ingredientResult] = await connection.execute(
+                    'SELECT ingredient_id FROM Ingredients WHERE name = ?',
+                    [ingredient.name]
+                );
+    
+                let ingredientId;
+                if (ingredientResult.length === 0) {
+                    // Insert the new ingredient
+                    const [newIngredientResult] = await connection.execute(
+                        'INSERT INTO Ingredients (name) VALUES (?)',
+                        [ingredient.name]
+                    );
+                    ingredientId = newIngredientResult.insertId;
+                } else {
+                    ingredientId = ingredientResult[0].ingredient_id;
+                }
+    
+                // Insert into Recipe_Ingredients
+                await connection.execute(
+                    'INSERT INTO Recipe_Ingredients (recipe_id, ingredient_id, amount) VALUES (?, ?, ?)',
+                    [recipeId, ingredientId, ingredient.amount || null]
+                );
+            }
+    
+            // Insert the steps
+            for (const step of this.steps) {
+                if (!step.description || step.step_number === undefined) {
+                    throw new Error('Invalid step data');
+                }
+    
+                await connection.execute(
+                    'INSERT INTO Steps (recipe_id, description, step_number) VALUES (?, ?, ?)',
+                    [recipeId, step.description || null, step.step_number || null]
+                );
+            }
+    
+            await connection.commit();
+            return { recipeId };
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
     }
+    
+    
 
     static getById(id) {
-        return db.execute(`SELECT * FROM Recipes WHERE recipe_id = ${id}`)
-
+        return db.execute(`SELECT * FROM Recipes WHERE recipe_id = ?`, [id]);
     }
 
     static delete(id) {
-        return db.execute(`DELETE FROM Recipes WHERE recipe_id = ${id}`)
+        return db.execute(`DELETE FROM Recipes WHERE recipe_id = ?`, [id]);
     }
 
     update(id) {
-        return db.execute(`UPDATE Recipes SET Recipes.name = '${this.name}', Recipes.description = '${this.description}', Recipes.preparation_time = '${this.preparation_time}', Recipes.difficulty = '${this.difficulty}' WHERE recipe_id = ${id}`)
+        return db.execute(
+            `UPDATE Recipes SET name = ?, image_path = ? WHERE recipe_id = ?`,
+            [this.name, this.image_path, id]
+        );
     }
-
-
 }

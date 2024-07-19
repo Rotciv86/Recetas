@@ -1,14 +1,13 @@
 <template>
-  <div>
+  <div class="p-8">
     <h1 class="text-indigo-600 text-8xl">Helloooooo  world!!</h1>
     <button @click="getRecipes" class="bg-indigo-600 hover:bg-indigo-300 text-white rounded-xl border border-indigo-950 p-4">Get Recipes</button>
-    <ul>
+    <ul class="grid grid-cols-3 gap-8">
       <li v-for="recipe in recipes" :key="recipe.id">
-        <h3>{{recipe.name}}</h3>
-        <p>{{recipe.description}}</p>
-        <p>{{recipe.preparation_time}}</p>
-        <p>{{recipe.difficulty}}</p>
-
+        <div class="p-8 flex flex-col justify-between w-[100%] h-[100%] rounded-xl bg-slate-100 shadow-2xl border-2 border-purple-300 overflow-hidden transition-transform duration-300 ease-in-out transform hover:scale-105">
+          <h3>{{recipe.name}}</h3>
+          <img :src="getImageUrl(recipe.image_path)" alt="Recipe Image" class="w-full h-40 object-cover mt-4">
+        </div>
       </li>
     </ul>
     <RouterView/>
@@ -34,7 +33,9 @@ export default {
         console.error(error)
       }
 
-
+    },
+    getImageUrl(path) {
+      return `http://localhost:3000/${path}`
     }
   }
 }
