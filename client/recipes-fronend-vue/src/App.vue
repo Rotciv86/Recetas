@@ -6,9 +6,7 @@
       <li v-for="recipe in recipes" :key="recipe.id">
         <div class="p-8 flex flex-col justify-between w-[100%] h-[100%] rounded-xl bg-slate-100 shadow-2xl border-2 border-purple-300 overflow-hidden transition-transform duration-300 ease-in-out transform hover:scale-105">
           <h3>{{recipe.name}}</h3>
-          <p>{{recipe.description}}</p>
-          <p>{{recipe.preparation_time}}</p>
-          <p>{{recipe.difficulty}}</p>
+          <img :src="getImageUrl(recipe.image_path)" alt="Recipe Image" class="w-full h-40 object-cover mt-4">
         </div>
       </li>
     </ul>
@@ -35,7 +33,9 @@ export default {
         console.error(error)
       }
 
-
+    },
+    getImageUrl(path) {
+      return `http://localhost:3000/${path}`
     }
   }
 }

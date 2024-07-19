@@ -1,10 +1,8 @@
 const { check, validationResult } = require('express-validator')
 
 const validatorCreateRecipe = [
-    check("name").exists().notEmpty().isLength({min: 3, max: 40}),
-    check("description").exists().notEmpty(),
-    check("preparation_time").exists().notEmpty(),
-    check("difficulty").exists().notEmpty()
+    check("name").exists().notEmpty().isLength({min: 3, max: 40})
+
 ,
 (request, response, next) => {
     try {

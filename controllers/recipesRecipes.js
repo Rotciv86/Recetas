@@ -1,92 +1,105 @@
-const { response } = require('express')
-const RecipesRecipes = require('../model/collections/recipesRecipes')
-const { recipesRecipes } = require('../model/index')
+const RecipesRecipes = require('../model/collections/recipesRecipes');
+const { recipesRecipes } = require('../model/index');
 
 const getRecipesRecipes = (request, response) => {
-
     try {
         recipesRecipes.getAll().then(data => {
-            response.status(200).send(data[0])
-        }).catch(error => response.status(400).send(error))
+            response.status(200).send(data[0]);
+        }).catch(error => response.status(400).send(error));
     } catch (error) {
-        response.status(500).send({msg: 'internal server error'})
+        response.status(500).send({ msg: 'internal server error' });
     }
 }
 
-const createRecipeRecipes = (request, response) => {
+const createRecipeRecipes = async (request, response) => {
+    console.log("Request body:", request.body);
+
     try {
-        const { name, description, preparation_time, difficulty } = request.body
-        const recipe = new RecipesRecipes(name, description, preparation_time, difficulty)
+        const { name, ingredients, steps } = request.body;
+        const image = request.file ? request.file.path : null
 
-        recipe.create()
-        .then(data => response.status(201).send({data, msg: "Recipe created"}))
-        .catch(error => response.status(400).send(error))
 
+        // Validación básica de entrada
+        if (!name || !Array.isArray(ingredients) || !Array.isArray(steps)) {
+            return response.status(400).send({ msg: 'Invalid input data' });
+        }
+
+        // Validar ingredientes
+        if (ingredients.some(ingredient => !ingredient.name || ingredient.amount === undefined)) {
+            return response.status(400).send({ msg: 'Invalid ingredient data' });
+        }
+
+        // Validar pasos
+        if (steps.some(step => !step.description || step.step_number === undefined)) {
+            return response.status(400).send({ msg: 'Invalid step data' });
+        }
+
+        const recipe = new RecipesRecipes(name, image, ingredients, steps);
+
+        const result = await recipe.create();
+        response.status(201).send({ recipeId: result.recipeId, msg: "Recipe created" });
     } catch (error) {
-        response.status(500).send({msg: 'internal server error'})
+        console.error(error); // Imprime el error para depuración
+        response.status(500).send({ msg: 'internal server error' });
     }
 }
+
 
 const getOneRecipeRecipes = (request, response) => {
     try {
-        const { id } = request.params
+        const { id } = request.params;
 
         recipesRecipes.getById(id).then(data => {
-            response.status(200).send(data[0])
-        }).catch(error => response.status(400).send(error))
+            response.status(200).send(data[0]);
+        }).catch(error => response.status(400).send(error));
     } catch (error) {
-        response.status(500).send({msg: 'internal server error'})
-
+        response.status(500).send({ msg: 'internal server error' });
     }
 }
 
 const deleteRecipeRecipes = async (request, response) => {
     try {
-        const { id } = request.params
-        const result = await recipesRecipes.getById(id)
+        const { id } = request.params;
+        const result = await recipesRecipes.getById(id);
 
-        const recipeToDelete = result[0][0]
+        const recipeToDelete = result[0][0];
 
-
-        if(recipeToDelete){
-            recipesRecipes.delete(id).then(data => response.status(200).send({data, msg: 'recipe deleted'})).catch(error => response.status(400).send(error))
+        if (recipeToDelete) {
+            recipesRecipes.delete(id).then(data => response.status(200).send({ data, msg: 'recipe deleted' })).catch(error => response.status(400).send(error));
         } else {
-            response.status(404).send({msg: 'recipe not found'})
+            response.status(404).send({ msg: 'recipe not found' });
         }
-        
     } catch (error) {
-        response.status(500).send({msg: 'internal server error'})
-
+        response.status(500).send({ msg: 'internal server error' });
     }
 }
 
 const updateRecipeRecipes = async (request, response) => {
     try {
-        const {id} = request.params
-        const { name, description, preparation_time, difficulty } = request.body
+        const { id } = request.params;
+        const { name, ingredients, steps } = request.body;
 
-        const result = await recipesRecipes.getById(id)
+        const ingredientsArray = ingredients; // [{name, amount}]
+        const stepsArray = steps; // [{description, step_number}]
 
-        const recipeToDelete = result[0][0]
+        const result = await recipesRecipes.getById(id);
 
-        if (recipeToDelete) {
+        const recipeToUpdate = result[0][0];
 
-            const updatedRecipe = new RecipesRecipes(name, description, preparation_time, difficulty)
+        if (recipeToUpdate) {
+            const updatedRecipe = new RecipesRecipes(name, null, ingredientsArray, stepsArray);
 
-            updatedRecipe.update(id).then(data => response.status(200).send({data, msg: 'recipe updated'})).catch(error => response.status(400).send(error))
-    
+            await updatedRecipe.update(id);
 
+            // Handle ingredients and steps update logic as needed here
+
+            response.status(200).send({ msg: 'recipe updated' });
         } else {
-            response.status(404).send({msg: 'recipe not found'})
-
+            response.status(404).send({ msg: 'recipe not found' });
         }
-
     } catch (error) {
-        response.status(500).send({msg: 'internal server error'})
-
+        response.status(500).send({ msg: 'internal server error' });
     }
-
-
 }
 
-module.exports = { getRecipesRecipes, createRecipeRecipes, getOneRecipeRecipes, deleteRecipeRecipes, updateRecipeRecipes}
+module.exports = { getRecipesRecipes, createRecipeRecipes, getOneRecipeRecipes, deleteRecipeRecipes, updateRecipeRecipes };
