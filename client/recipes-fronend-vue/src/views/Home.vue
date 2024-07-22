@@ -1,15 +1,15 @@
 <template>
     <div>
-        <h1><span>{{ viewName }}: </span> Bon dia y feliç solstici d'estiu</h1>
-        <p>
-          <strong>Current route path:</strong> {{ $route.fullPath }}
-        </p>    
+        <RecipesList/>
     </div>
 </template>
 <script>
+import Navbar from '../components/Navbar.vue'
+import RecipesList from '../components/RecipesList.vue'
 
 export default {
     name : "Home",
+    components : { Navbar, RecipesList },
     data() {
         return {
             viewName: "Home"
@@ -17,8 +17,3 @@ export default {
     },
 }
 </script>
-<style>
-span {
-    color: red;
-  }
-</style>
