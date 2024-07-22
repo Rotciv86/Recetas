@@ -7,6 +7,7 @@
         <div class="p-8 flex flex-col justify-between w-[100%] h-[100%] rounded-xl bg-slate-100 shadow-2xl border-2 border-purple-300 overflow-hidden transition-transform duration-300 ease-in-out transform hover:scale-105">
           <h3>{{recipe.name}}</h3>
           <img :src="getImageUrl(recipe.image_path)" alt="Recipe Image" class="w-full h-40 object-cover mt-4">
+          <button @click="deleteRecipe(recipe.recipe_id)" class="w-8 h-8 p-2 bg-red-600 text-white">X</button>
         </div>
       </li>
     </ul>
@@ -27,6 +28,7 @@ export default {
         const response = await fetch('http://localhost:3000/api/recipes-recipes')
 
         const data = await response.json()
+        console.log(data)
         this.recipes = data
 
       } catch (error) {
@@ -36,10 +38,27 @@ export default {
     },
     getImageUrl(path) {
       return `http://localhost:3000/${path}`
+    },
+    async deleteRecipe(id) {
+      try {
+
+      const response =  await fetch(`http://localhost:3000/api/recipes-recipes/${id}`,
+         {
+          method: 'DELETE',
+          headers: { "Content-Type": "Application/json" },
+        }
+      );
+
+      const data = await response.json()
+
+      console.log(data)
+
+        this.getRecipes()
+
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 }
 </script>
-<style>
-  
-</style>

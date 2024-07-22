@@ -60,6 +60,7 @@ const getOneRecipeRecipes = (request, response) => {
 const deleteRecipeRecipes = async (request, response) => {
     try {
         const { id } = request.params;
+        await recipesRecipes.deleteReferences(id)
         const result = await recipesRecipes.getById(id);
 
         const recipeToDelete = result[0][0];

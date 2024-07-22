@@ -91,6 +91,14 @@ module.exports = class RecipesRecipes {
         return db.execute(`DELETE FROM Recipes WHERE recipe_id = ?`, [id]);
     }
 
+    static async deleteReferences(recipeId) {
+        const deleteIngredientsQuery = 'DELETE FROM Recipe_Ingredients WHERE recipe_id = ?';
+        const deleteStepsQuery = 'DELETE FROM Steps WHERE recipe_id = ?';
+
+        await db.execute(deleteIngredientsQuery, [recipeId]);
+        await db.execute(deleteStepsQuery, [recipeId]);
+    }
+
     update(id) {
         return db.execute(
             `UPDATE Recipes SET name = ?, image_path = ? WHERE recipe_id = ?`,
