@@ -45,13 +45,16 @@ const createRecipeRecipes = async (request, response) => {
 }
 
 
-const getOneRecipeRecipes = (request, response) => {
+const getOneRecipeRecipes = async (request, response) => {
     try {
         const { id } = request.params;
 
-        recipesRecipes.getById(id).then(data => {
-            response.status(200).send(data[0]);
-        }).catch(error => response.status(400).send(error));
+        const recipe = await RecipesRecipes.getById(id);
+        if (recipe) {
+            response.status(200).send(recipe);
+        } else {
+            response.status(404).send({ msg: 'Recipe not found' });
+        }
     } catch (error) {
         response.status(500).send({ msg: 'internal server error' });
     }

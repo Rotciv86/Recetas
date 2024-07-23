@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-8">
     <Navbar/>
     <RouterView/>
   </div>

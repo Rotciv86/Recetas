@@ -83,8 +83,29 @@ module.exports = class RecipesRecipes {
     
     
 
-    static getById(id) {
-        return db.execute(`SELECT * FROM Recipes WHERE recipe_id = ?`, [id]);
+    static async getById(id) {
+        const recipeQuery = 'SELECT * FROM Recipes WHERE recipe_id = ?';
+        const ingredientsQuery = `
+            SELECT i.name, ri.amount
+            FROM Ingredients i
+            JOIN Recipe_Ingredients ri ON i.ingredient_id = ri.ingredient_id
+            WHERE ri.recipe_id = ?
+        `;
+        const stepsQuery = 'SELECT description, step_number FROM Steps WHERE recipe_id = ? ORDER BY step_number';
+
+        const [recipeResult] = await db.execute(recipeQuery, [id]);
+        const [ingredientsResult] = await db.execute(ingredientsQuery, [id]);
+        const [stepsResult] = await db.execute(stepsQuery, [id]);
+
+        if (recipeResult.length === 0) {
+            return null; // Recipe not found
+        }
+
+        const recipe = recipeResult[0];
+        recipe.ingredients = ingredientsResult;
+        recipe.steps = stepsResult;
+
+        return recipe;
     }
 
     static delete(id) {
