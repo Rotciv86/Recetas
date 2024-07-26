@@ -63,20 +63,23 @@ const getOneRecipeRecipes = async (request, response) => {
 const deleteRecipeRecipes = async (request, response) => {
     try {
         const { id } = request.params;
-        await recipesRecipes.deleteReferences(id)
-        const result = await recipesRecipes.getById(id);
-
-        const recipeToDelete = result[0][0];
-
-        if (recipeToDelete) {
-            recipesRecipes.delete(id).then(data => response.status(200).send({ data, msg: 'recipe deleted' })).catch(error => response.status(400).send(error));
+        
+        await recipesRecipes.deleteReferences(id);
+        
+        const recipe = await recipesRecipes.getById(id);
+        
+        if (recipe) {
+            await recipesRecipes.delete(id);
+            response.status(200).send({ msg: 'Recipe deleted' });
         } else {
-            response.status(404).send({ msg: 'recipe not found' });
+            response.status(404).send({ msg: 'Recipe not found' });
         }
     } catch (error) {
-        response.status(500).send({ msg: 'internal server error' });
+        console.error(`Error deleting recipe: ${error.message}`);
+        response.status(500).send({ msg: 'Internal server error', error: error.message });
     }
 }
+
 
 const updateRecipeRecipes = async (request, response) => {
     try {
