@@ -81,29 +81,36 @@ const deleteRecipeRecipes = async (request, response) => {
 const updateRecipeRecipes = async (request, response) => {
     try {
         const { id } = request.params;
-        const { name, ingredients, steps } = request.body;
+        const { name, image_path, ingredients, steps } = request.body;
 
-        const ingredientsArray = ingredients; // [{name, amount}]
-        const stepsArray = steps; // [{description, step_number}]
-
-        const result = await recipesRecipes.getById(id);
-
-        const recipeToUpdate = result[0][0];
-
-        if (recipeToUpdate) {
-            const updatedRecipe = new RecipesRecipes(name, null, ingredientsArray, stepsArray);
-
-            await updatedRecipe.update(id);
-
-            // Handle ingredients and steps update logic as needed here
-
-            response.status(200).send({ msg: 'recipe updated' });
-        } else {
-            response.status(404).send({ msg: 'recipe not found' });
+        // Validar entrada básica
+        if (!name || !Array.isArray(ingredients) || !Array.isArray(steps)) {
+            return response.status(400).send({ msg: 'Invalid input data' });
         }
+
+        // Validar ingredientes
+        if (ingredients.some(ingredient => !ingredient.name || ingredient.amount === undefined)) {
+            return response.status(400).send({ msg: 'Invalid ingredient data' });
+        }
+
+        // Validar pasos
+        if (steps.some(step => !step.description || step.step_number === undefined)) {
+            return response.status(400).send({ msg: 'Invalid step data' });
+        }
+
+        const recipe = await RecipesRecipes.getById(id);
+        if (!recipe) {
+            return response.status(404).send({ msg: 'Recipe not found' });
+        }
+
+        const updatedRecipe = new RecipesRecipes(name, image_path, ingredients, steps);
+        await updatedRecipe.update(id);
+
+        response.status(200).send({ msg: 'Recipe updated' });
     } catch (error) {
         response.status(500).send({ msg: 'internal server error' });
     }
-}
+};
+
 
 module.exports = { getRecipesRecipes, createRecipeRecipes, getOneRecipeRecipes, deleteRecipeRecipes, updateRecipeRecipes };

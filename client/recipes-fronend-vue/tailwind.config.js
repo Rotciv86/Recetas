@@ -7,10 +7,10 @@ export default {
   theme: {
     extend: {
       width:{
-        '3/4vw': '75vw'
+        '3/4vw': '80vw'
       },
       height: {
-        '3/4vh': '75vh'
+        '3/4vh': '80vh'
       }
     },  },
   plugins: [],
