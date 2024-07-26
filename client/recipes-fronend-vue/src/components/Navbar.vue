@@ -1,13 +1,13 @@
 <template>
-    <nav class="pb-8 flex flex-row justify-between">
-        <h1 class="text-indigo-600 text-8xl pb-8">Be Cook</h1>
+    <nav class="pb-8 flex flex-row justify-between items-center">
+        <h1 class="text-indigo-600 text-6xl font-bold animate-pulse hover:animate-spin">Be Cook</h1>
 
-        <ul>
-          <li>
-            <RouterLink to="/" class="text-indigo-600">Recetas</RouterLink>
+        <ul class="bg-slate-100/80 p-4 rounded-lg">
+          <li class="pb-4">
+            <RouterLink to="/" class="text-emerald-500 font-bold text-2xl hover:text-indigo-600">Recetas</RouterLink>
           </li>
-          <li>
-            <RouterLink to="/form" class="text-indigo-600">Añade nueva receta</RouterLink>
+          <li class="pt-4">
+            <RouterLink to="/form" class="text-emerald-500 font-bold text-2xl hover:text-indigo-600">Añade receta</RouterLink>
           </li>
         </ul>
       </nav>
