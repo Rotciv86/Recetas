@@ -144,7 +144,7 @@ export default {
   }
 
   try {
-    const response = await fetch("http://localhost:3000/api/recipes-recipes/", {
+    const response = await fetch("https://recetas-wlq2.onrender.com/api/recipes-recipes/", {
       method: "POST",
       body: formData
     });

@@ -50,7 +50,7 @@ export default {
             console.log(this.recipe)
         },
         getImageUrl(path) {
-            return `http://localhost:3000/${path}`
+            return `https://recetas-wlq2.onrender.com/${path}`
     },
     },
     
