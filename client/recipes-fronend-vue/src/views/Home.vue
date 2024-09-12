@@ -39,7 +39,7 @@ export default {
         },
         async handleRecipeData(recipeId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/recipes-recipes/${recipeId}`);
+            const response = await fetch(`https://recetas-wlq2.onrender.com/api/recipes-recipes/${recipeId}`);
             const data = await response.json();
             this.selectedRecipeData = data;
             eventBus.emit('recipeSingleDataFetched', data);

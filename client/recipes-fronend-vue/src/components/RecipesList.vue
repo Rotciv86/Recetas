@@ -29,7 +29,7 @@ export default {
     methods: {
     async getRecipes() {
       try {
-        const response = await fetch('http://localhost:3000/api/recipes-recipes')
+        const response = await fetch('https://recetas-wlq2.onrender.com/api/recipes-recipes')
 
         const data = await response.json()
         console.log(data)
@@ -41,12 +41,12 @@ export default {
 
     },
     getImageUrl(path) {
-      return `http://localhost:3000/${path}`
+      return `https://recetas-wlq2.onrender.com/${path}`
     },
     async deleteRecipe(id) {
       try {
 
-      const response =  await fetch(`http://localhost:3000/api/recipes-recipes/${id}`,
+      const response =  await fetch(`https://recetas-wlq2.onrender.com/api/recipes-recipes/${id}`,
          {
           method: 'DELETE',
           headers: { "Content-Type": "Application/json" },
